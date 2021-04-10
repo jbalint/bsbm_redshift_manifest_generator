@@ -29,21 +29,33 @@ struct Manifest {
     entries: Vec<ManifestEntry>,
 }
 
+struct GeneratorConfig {
+    scale: i64,
+    // currently 4 threads on Redshift so multiples of 4 work best here
+    manifest_entries: i64,
+}
+
 fn main() {
-    let scale: i64 = 100 * 2848_000;
+    let trillion_scale_config = GeneratorConfig {
+        scale: 1000 * 2848_000,
+        manifest_entries: 1920,
+    };
+
+    let config = trillion_scale_config;
+
+    // scan for 1M
     let base_scale: i64 = 2848;
     let records_per_base_scale = 56960;
-    let total_records = (scale / base_scale) * records_per_base_scale;
-    let manifest_entries = 192; // currently 4 threads on Redshift so multiples of 4 work best here
-    let records_per_entry = total_records / manifest_entries;
-    let entries: Vec<_> = (0..manifest_entries)
+    let total_records = (config.scale / base_scale) * records_per_base_scale;
+    let records_per_entry = total_records / config.manifest_entries;
+    let entries: Vec<_> = (0..config.manifest_entries)
         .map(|entry_no| {
-            let max: i64 = if entry_no == manifest_entries - 1 {
+            let max: i64 = if entry_no == config.manifest_entries - 1 {
                 -1
             } else {
                 (entry_no + 1) * records_per_entry - 1
             };
-            ManifestEntry::new(scale, entry_no * records_per_entry, max)
+            ManifestEntry::new(config.scale, entry_no * records_per_entry, max)
         })
         .collect();
     let manifest = Manifest { entries };
