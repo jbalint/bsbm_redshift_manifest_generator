@@ -38,7 +38,13 @@ struct GeneratorConfig {
 fn main() {
     let trillion_scale_config = GeneratorConfig {
         scale: 1000 * 2848_000,
-        manifest_entries: 1920,
+        // remember that each time we invoke the generator process, it must generate products
+        // and offers to reach the specified offset. there are no shortcuts (could't we save the
+        // seeds at specific intervals?)
+
+        // use of the #12 gives us a reasonable balance between waste and being able to get useful
+        // data sooner (by commenting out entries and loading only the first few at a time)
+        manifest_entries: 12,
     };
 
     let config = trillion_scale_config;
