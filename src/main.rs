@@ -44,10 +44,17 @@ fn main() {
 
         // use of the #12 gives us a reasonable balance between waste and being able to get useful
         // data sooner (by commenting out entries and loading only the first few at a time)
-        manifest_entries: 12,
+
+        // changed to 16 for larger cluster which loads 8x
+        manifest_entries: 16,
+    };
+    let billion_scale_config = GeneratorConfig {
+        scale: 10 * 2848_000,
+        // Even with the ra3.4xlarge w/12 cores, Redshift is only loading 8 threads concurrently
+        manifest_entries: 4,
     };
 
-    let config = trillion_scale_config;
+    let config = billion_scale_config;
 
     // scan for 1M
     let base_scale: i64 = 2848;
